@@ -2,13 +2,11 @@ package main
 
 import (
 	"fmt"
-	"net/http"
 
 	"github.com/doncuervoc/go-api-02/db_connection"
 	"github.com/doncuervoc/go-api-02/models"
-	"github.com/doncuervoc/go-api-02/routes" // package router
-	"github.com/gorilla/mux"                 // Gorilla mux = flexible package to make router HTTP
-	// "gorm.io/driver/postgres"
+	myRouter "github.com/doncuervoc/go-api-02/router"
+	"github.com/gin-gonic/gin"
 	// "gorm.io/gorm"
 )
 
@@ -16,25 +14,21 @@ func main() {
 	fmt.Println("Initialazing Server")
 
 	// DB Connection POSGRESQL
-	// db_connection.InitDatabase() //*sql.DB
 	db_connection.DBConnection() //*gorm.DB
 
-	//Migration
-	// estamos importanto el strack, creando las tablas a partir de los modelos
-	db_connection.DB.AutoMigrate(models.Task{})
+	// Migration: Automatically create tables based on the defined models.
+	// This ensures that the database schema is in sync with the application's models
 	db_connection.DB.AutoMigrate(models.User{})
 
-	//ROUTER
-	router := mux.NewRouter()
-	//ENDPOINTS
-	router.HandleFunc("/", routes.HomeHandler)
-	router.HandleFunc("/users", routes.GetUsers).Methods("GET")
-	router.HandleFunc("/users/{id}", routes.GetUserById).Methods("GET")
-	router.HandleFunc("/users", routes.CreateUser).Methods("POST")
-	router.HandleFunc("/users/{id}", routes.UpdateUser).Methods("PATCH")
-	router.HandleFunc("/users/{id}", routes.DeleteUser).Methods("DELETE")
+	//ROUTER : Setting up the Gin router.
+	router := gin.Default() // Initialize a new Gin router with default middleware.
 
-	fmt.Println("Ready for some margaritas!")
-	http.ListenAndServe(":3000", router)
+	// ROUTES :  Configure user-related routes by calling the UserRouter function.
+	myRouter.UserRouter(router) // Registering user routes.
+
+	// Start the Gin server on port 3000 and log any errors encountered during startup.
+	if err := router.Run(":3000"); err != nil {
+		fmt.Println("Error starting server:", err) // Log the error if server fails to start.
+	}
 
 }

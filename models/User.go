@@ -7,5 +7,5 @@ type User struct {
 	FirstName string `gorm:"not null" json:"first_name"`
 	LastName  string `gorm:"not null" json:"last_name"`
 	Email     string `gorm:"not null; unique_index" json:"email"`
-	Task      []Task `json:"task"`
+	// Task      []Task `json:"task"`
 }
